@@ -31,6 +31,12 @@ bool operator<=(Train &f, Train &s);
 void merge(std::vector<Train> &schedules, int start, int end, int mid);
 void mergeSort(std::vector<Train> &schedules, int start, int end);
 
+int findFirst(std::vector<Train> &schedules,
+              int start,
+              int end,
+              std::string find);
+void linearSearch(std::vector<Train> &schedules, std::string find);
+
 void printSchedules(std::vector<Train> &schedules);
 void printInfo(std::vector<Train> &schedules, std::string fileName);
 
@@ -42,22 +48,58 @@ int main(int argc, char *argv[]) {
   std::vector<Train> schedules;
   parseFile(schedules, argv[1]);
 
-  unsigned int endTime, startTime = clock();
-    
-  mergeSort(schedules, 0, static_cast<int>(schedules.size()) - 1);
+  unsigned int endTime = 0, startTime = 0;
 
+    std::string find = argv[2];
+#ifdef LINEAR
+  startTime = clock();
+  linearSearch(schedules, find);
   endTime = clock();
-
-  std::ofstream fout("output.txt");
-  for (size_t i = 0; i < schedules.size(); i++) {
-    fout << i << ": " << schedules[i].no << " " << schedules[i].data << " " << schedules[i].type << " " << schedules[i].time << " " << schedules[i].onRoad << std::endl;
-  }
-  fout.close();
-
+#endif // LINEAR
+/*
+#ifdef BINARYSORTED
+  mergeSort(schedules, 0, static_cast<int>(schedules.size()) - 1);
+  startTime = clock();
+  binarySearch(schedules, find);
+  endTime = clock();
+#endif // BINARYSORTED
+#ifdef BINARYANDSORT
+  startTime = clock();
+  mergeSort(schedules, 0, static_cast<int>(schedules.size()) - 1);
+  binarySearch(schedules, find);
+  endTime = clock();
+#endif // BINARYANDSORT
+*/
   unsigned int searchTime = 1000.0 * (endTime - startTime) / CLOCKS_PER_SEC;
-  std::cout << "Execution time " << "output.txt" << " for " << schedules.size() << ": " << searchTime << std::endl;
+  std::cout << "Execution time for " << schedules.size() << ": " << searchTime << std::endl;
 
   return 0;
+}
+
+int findFirst(std::vector<Train> &schedules,
+              int start,
+              int end,
+              std::string find) {
+    for (int i = start; i < end; i++) {
+        if (schedules[i].type == find) {
+            return i;
+        }
+    }
+    return -2;
+}
+
+void linearSearch(std::vector<Train> &schedules, std::string find) {
+    std::ofstream fout("output.txt");
+    
+    int pos = -1;
+    while (pos != -2) {
+        pos = findFirst(schedules, pos + 1, static_cast<int>(schedules.size()), find);
+        if (pos != -2) {
+          fout << schedules[pos].no << " " << schedules[pos].data << " " << schedules[pos].type << " " << schedules[pos].time << " " << schedules[pos].onRoad << std::endl;
+        }
+    }
+    
+    fout.close();
 }
 
 void parseFile(std::vector<Train> &schedules, char *fileName) {
