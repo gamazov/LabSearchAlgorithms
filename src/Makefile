@@ -26,8 +26,8 @@ all:
 linear:
 	g++ -std=c++11 -Wall -Werror -Wextra main.cpp -D LINEAR
 binarysorted:
-	g++ -std=c++11 -Wall -Werror -Wextra main.cpp -D QUICKSORT
-binaryabdsort:
-	g++ -std=c++11 -Wall -Werror -Wextra main.cpp -D INSERTSORT
+	g++ -std=c++11 -Wall -Werror -Wextra main.cpp -D BINARYSORTED
+binaryandsort:
+	g++ -std=c++11 -Wall -Werror -Wextra main.cpp -D BINARYANDSORT
 clean:
 	rm -f a.out output.txt

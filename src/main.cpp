@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <vector>
 
 struct Train {
@@ -13,6 +14,7 @@ struct Train {
   unsigned int timeVal = 0;
   unsigned int noVal = 0;
   unsigned int onRoadVal = 0;
+  unsigned int typeVal = 0;
 };
 
 void parseFile(std::vector<Train> &schedules, char *fileName);
@@ -21,6 +23,7 @@ void parseNo(Train &train);
 void parseData(Train &train);
 void parseTime(Train &train);
 void parseOnRoad(Train &train);
+void parseType(Train &train);
 
 bool operator==(Train &f, Train &s);
 bool operator>(Train &f, Train &s);
@@ -28,78 +31,193 @@ bool operator<(Train &f, Train &s);
 bool operator>=(Train &f, Train &s);
 bool operator<=(Train &f, Train &s);
 
+bool operator<(std::string &f, std::string &s);
+
 void merge(std::vector<Train> &schedules, int start, int end, int mid);
 void mergeSort(std::vector<Train> &schedules, int start, int end);
 
-int findFirst(std::vector<Train> &schedules,
-              int start,
-              int end,
-              std::string find);
-void linearSearch(std::vector<Train> &schedules, std::string find);
+int findFirst(std::vector<Train> &schedules, int start, int end, std::string find);
+std::vector<int> linearSearch(std::vector<Train> &schedules, std::string find);
+
+int firstBinarySearch(std::vector<Train> &schedules,
+                      int start,
+                      int end,
+                      std::string value);
+int lastBinarySearch(std::vector<Train> &schedules,
+                     int start,
+                     int end,
+                     std::string value);
+std::vector<int> binarySearch(std::vector<Train> &schedules,
+                              int start,
+                              int end,
+                              std::string value);
 
 void printSchedules(std::vector<Train> &schedules);
-void printInfo(std::vector<Train> &schedules, std::string fileName);
+void printFileSchedules(std::vector<Train> &schedules, std::vector<int> &pos);
 
 int main(int argc, char *argv[]) {
-  if (argc == 1) {
-    std::cout << "No parametrs";
+  if (argc != 3) {
+    std::cout << "Parametrs error";
     return 1;
   }
   std::vector<Train> schedules;
+
   parseFile(schedules, argv[1]);
-
+  std::string find = argv[2];
+    
   unsigned int endTime = 0, startTime = 0;
-
-    std::string find = argv[2];
 #ifdef LINEAR
   startTime = clock();
-  linearSearch(schedules, find);
+  std::vector<int> res = linearSearch(schedules, find);
   endTime = clock();
 #endif // LINEAR
-/*
 #ifdef BINARYSORTED
   mergeSort(schedules, 0, static_cast<int>(schedules.size()) - 1);
   startTime = clock();
-  binarySearch(schedules, find);
+  std::vector<int> res = binarySearch(schedules, 0, static_cast<int>(schedules.size()), find);
   endTime = clock();
 #endif // BINARYSORTED
 #ifdef BINARYANDSORT
   startTime = clock();
   mergeSort(schedules, 0, static_cast<int>(schedules.size()) - 1);
-  binarySearch(schedules, find);
+  std::vector<int> res = binarySearch(schedules, 0, static_cast<int>(schedules.size()), find);
   endTime = clock();
 #endif // BINARYANDSORT
-*/
-  unsigned int searchTime = 1000.0 * (endTime - startTime) / CLOCKS_PER_SEC;
+
+  printFileSchedules(schedules, res);
+  unsigned int searchTime = 1000000.0 * (endTime - startTime) / CLOCKS_PER_SEC;
   std::cout << "Execution time for " << schedules.size() << ": " << searchTime << std::endl;
 
   return 0;
 }
 
-int findFirst(std::vector<Train> &schedules,
-              int start,
-              int end,
-              std::string find) {
-    for (int i = start; i < end; i++) {
-        if (schedules[i].type == find) {
-            return i;
-        }
+int findFirst(std::vector<Train> &schedules, int start, int end, std::string find) {
+  for (int i = start; i < end; i++) {
+    if (schedules[i].type == find) {
+      return i;
     }
-    return -2;
+  }
+  return -2;
 }
 
-void linearSearch(std::vector<Train> &schedules, std::string find) {
-    std::ofstream fout("output.txt");
-    
-    int pos = -1;
-    while (pos != -2) {
-        pos = findFirst(schedules, pos + 1, static_cast<int>(schedules.size()), find);
-        if (pos != -2) {
-          fout << schedules[pos].no << " " << schedules[pos].data << " " << schedules[pos].type << " " << schedules[pos].time << " " << schedules[pos].onRoad << std::endl;
-        }
+std::vector<int> linearSearch(std::vector<Train> &schedules, std::string find) {
+  std::vector<int> output = {};
+
+  int pos = -1;
+  while (pos != -2) {
+    pos = findFirst(schedules, pos + 1, static_cast<int>(schedules.size()), find);
+    if (pos != -2) {
+      output.push_back(pos);
     }
-    
-    fout.close();
+  }
+  return output;
+}
+
+bool operator<(std::string &f, std::string &s) {
+  int fVal = 0, sVal = 0;
+  if (f == "express") {
+    fVal = 0;
+  }
+  if (f == "passenger") {
+    fVal = 1;
+  }
+  if (f == "freight") {
+    fVal = 2;
+  }
+  if (s == "express") {
+    sVal = 0;
+  }
+  if (s == "passenger") {
+    sVal = 1;
+  }
+  if (s == "freight") {
+    sVal = 2;
+  }
+  return fVal < sVal;
+}
+
+int firstBinarySearch(std::vector<Train> &schedules,
+                      int start,
+                      int end,
+                      std::string value) {
+  if (start >= end) {
+    return -1;
+  }
+
+  if (value == schedules[start].type) {
+    return start;
+  }
+  int mid = start + (end - start) / 2;
+  if (value == schedules[mid].type) {
+    if (mid - start <= 1) {
+      return mid;
+    }
+    else {
+      return firstBinarySearch(schedules, start, mid + 1, value);
+    }
+  }
+  if (value < schedules[mid].type) {
+    return firstBinarySearch(schedules, start, mid, value);
+  }
+  else {
+    return firstBinarySearch(schedules, mid + 1, end, value);
+  }
+}
+
+int lastBinarySearch(std::vector<Train> &schedules,
+                     int start,
+                     int end,
+                     std::string value) {
+  if (start >= end) {
+    return -1;
+  }
+
+  int last = end - 1;
+  if (value == schedules[last].type) {
+    return last;
+  }
+  int mid = start + (end - start) / 2;
+  if (value == schedules[mid].type) {
+    if (last - mid <= 1) {
+      return mid;
+    }
+    else {
+      return lastBinarySearch(schedules, mid, end, value);
+    }
+  }
+  if (value < schedules[mid].type) {
+    return lastBinarySearch(schedules, start, mid, value);
+  }
+  else {
+    return lastBinarySearch(schedules, mid + 1, end, value);
+  }
+}
+
+std::vector<int> binarySearch(std::vector<Train> &schedules,
+                              int start,
+                              int end,
+                              std::string value) {
+  if (start >= end) {
+    std::vector<int> output = {};
+    return output;
+  }
+
+  int mid = start + (end - start) / 2;
+  if (value == schedules[mid].type) {
+    auto pair = std::make_pair(firstBinarySearch(schedules, start, end, value),
+                               lastBinarySearch(schedules, start, end, value));
+    std::vector<int> output = {};
+    for (int i = pair.first; i <= pair.second; i++) {
+      output.push_back(i);
+    }
+    return output;
+  }
+  if (value < schedules[mid].type) {
+    return binarySearch(schedules, start, mid, value);
+  }
+  else {
+    return binarySearch(schedules, mid + 1, end, value);
+  }
 }
 
 void parseFile(std::vector<Train> &schedules, char *fileName) {
@@ -127,7 +245,7 @@ void parseFile(std::vector<Train> &schedules, char *fileName) {
     parseData(train);
     parseTime(train);
     parseOnRoad(train);
-
+    parseType(train);
     schedules.push_back(train);
   }
 
@@ -168,40 +286,34 @@ void parseOnRoad(Train &train) {
   train.onRoadVal = std::stoi(parsedStrs[0] + parsedStrs[1] + parsedStrs[2]);
 }
 
+void parseType(Train &train) {
+  if (train.type == "express") {
+    train.typeVal = 0;
+  }
+  if (train.type == "passenger") {
+    train.typeVal = 1;
+  }
+  if (train.type == "freight") {
+    train.typeVal = 2;
+  }
+}
+
 bool operator==(Train &f, Train &s) {
-  if (f.dataVal == s.dataVal && f.timeVal == s.timeVal && f.noVal == s.noVal && f.onRoadVal == s.onRoadVal) {
+  if (f.typeVal == s.typeVal) {
     return true;
   }
   return false;
 }
 
 bool operator>(Train &f, Train &s) {
-  if (f.dataVal > s.dataVal) {
-    return true;
-  }
-  if (f.dataVal == s.dataVal && f.timeVal > s.timeVal) {
-    return true;
-  }
-  if (f.dataVal == s.dataVal && f.timeVal == s.timeVal && f.noVal > s.noVal) {
-    return true;
-  }
-  if (f.dataVal == s.dataVal && f.timeVal == s.timeVal && f.noVal == s.noVal && f.onRoadVal > s.onRoadVal) {
+  if (f.typeVal > s.typeVal) {
     return true;
   }
   return false;
 }
 
 bool operator<(Train &f, Train &s) {
-  if (f.dataVal < s.dataVal) {
-    return true;
-  }
-  if (f.dataVal == s.dataVal && f.timeVal < s.timeVal) {
-    return true;
-  }
-  if (f.dataVal == s.dataVal && f.timeVal == s.timeVal && f.noVal < s.noVal) {
-    return true;
-  }
-  if (f.dataVal == s.dataVal && f.timeVal == s.timeVal && f.noVal == s.noVal && f.onRoadVal < s.onRoadVal) {
+  if (f.typeVal < s.typeVal) {
     return true;
   }
   return false;
@@ -268,7 +380,17 @@ void mergeSort(std::vector<Train> &schedules, int start, int end) {
 
 void printSchedules(std::vector<Train> &schedules) {
   std::cout << std::endl;
-  for (size_t i = 0; i < schedules.size(); i++) {
-    std::cout << i << ": " << schedules[i].no << " " << schedules[i].data << " " << schedules[i].type << " " << schedules[i].time << " " << schedules[i].onRoad << std::endl;
+  for (int i = 0; i < static_cast<int>(schedules.size()); i++) {
+    std::cout << schedules[i].no << " " << schedules[i].data << " " << schedules[i].type << " " << schedules[i].time << " " << schedules[i].onRoad << std::endl;
   }
+}
+
+void printFileSchedules(std::vector<Train> &schedules, std::vector<int> &pos) {
+  std::ofstream fout("output.txt");
+
+  for (int i = 0; i < static_cast<int>(pos.size()); i++) {
+    fout << schedules[pos[i]].no << " " << schedules[pos[i]].data << " " << schedules[pos[i]].type << " " << schedules[pos[i]].time << " " << schedules[pos[i]].onRoad << std::endl;
+  }
+
+  fout.close();
 }
