@@ -1,20 +1,149 @@
+/*!
+\file
+\brief https://github.com/gamazov/LabSearchAlgorithms
+\author Mazov Grigiriy
+*/
+
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <vector>
 
+/*!
+\fn void parseStr(std::string input, std::vector<std::string> &output, char sym)
+\brief Finds elements separated by the sym symbol in the string str and writes the result to output
+\param[in] input The string in which the search is performed
+\param[in,out] output Found substrings
+\param[in] sym The character by which to divide the string
+*/
+
+/*!
+\fn void parseNo(Train &train)
+\brief Converts the string no to an unsigned number for comparison
+\param[in,out] train Structure to be filled in
+*/
+
+/*!
+\fn void parseData(Train &train)
+\brief Converts the data string to an unsigned number for comparison
+\param[in,out] train Structure to be filled in
+*/
+
+/*!
+\fn void parseTime(Train &train)
+\brief Converts the string time to an unsigned number for comparison
+\param[in,out] train Structure to be filled in
+*/
+
+/*!
+\fn void parseOnRoad(Train &train)
+\brief Converts the string on Road to an unsigned number for comparison
+\param[in,out] train Structure to be filled in
+*/
+
+/*!
+\fn void parseFile(std::vector<Train> &schedules, char *fileName)
+\brief All schedule entries are filled in by reading data from the transmitted file
+\param[in,out] schedules Schedule to be filled in
+\param[in] fileName The file in which the search takes place
+*/
+
+/*!
+\fn void printSchedules(std::vector<Train> &schedules)
+\brief Displays the entire schedule
+\param[in] schedules Schedule
+*/
+
+/*!
+\fn void printFileSchedules(std::vector<Train> &schedules, std::vector<int> &pos);
+\brief Writes to a file output.txt
+\param[in] schedules Schedule
+\param[in] pos Positions in schedule
+*/
+
+/*!
+\fn void merge(std::vector<Train> &schedules, int start, int end, int mid)
+\brief Combining arrays
+\param[in,out] schedules Sortable schedule
+\param[in] start The beginning of the sorted array
+\param[in] end End of the sorted array
+\param[in] mid The middle of the sorted array
+*/
+
+/*!
+\fn void mergeSort(std::vector<Train> &schedules, int start, int end)
+\brief Merge sort
+\param[in,out] schedules Sortable schedule
+\param[in] start The beginning of the sorted array
+\param[in] end End of the sorted array
+*/
+
+/*!
+\fn int findFirst(std::vector<Train> &schedules, int start, int end, std::string find)
+\brief Search for the index of the first counter element
+\param[in] schedules Schedules in which the search is performed
+\param[in] start The beginning of the subarray
+\param[in] end The end of the subarray
+\param[in] find The key you are looking for
+*/
+
+/*!
+\fn std::vector<int> linearSearch(std::vector<Train> &schedules, std::string find)
+\brief Linear search function
+\param[in] schedules Schedules in which the search is performed
+\param[in] find The key you are looking for
+*/
+ 
+/*!
+\fn int firstBinarySearch(std::vector<Train> &schedules, int start, int end, std::string value)
+\brief Search by the key of the beginning of the subarray of the sorted array
+\param[in] schedules Schedules in which the search is performed
+\param[in] start The beginning of the subarray
+\param[in] end The end of the subarray
+\param[in] find The key you are looking for
+*/
+
+/*!
+\fn int lastBinarySearch(std::vector<Train> &schedules, int start, int end, std::string value)
+\brief Search by the key of the end of the subarray of the sorted array
+\param[in] schedules Schedules in which the search is performed
+\param[in] start The beginning of the subarray
+\param[in] end The end of the subarray
+\param[in] find The key you are looking for
+*/
+ 
+/*!
+\fn std::vector<int> binarySearch(std::vector<Train> &schedules, int start, int end, std::string value)
+\brief Searching by the key of a subarray of a sorted array
+\param[in] schedules Schedules in which the search is performed
+\param[in] start The beginning of the subarray
+\param[in] end The end of the subarray
+\param[in] find The key you are looking for
+*/
+
+/*!
+\brief Describes the recording of the train schedule
+*/
 struct Train {
+  //! Departure date
   std::string data;
+  //! Departure time
   std::string time;
+  //! Train number
   std::string no;
+  //! Travel time
   std::string onRoad;
+  //! Type of train
   std::string type;
 
+  //! Date represented as an unsigned number for comparison
   unsigned int dataVal = 0;
+  //! Departure time, represented as an unsigned number for comparison
   unsigned int timeVal = 0;
+  //! A number represented as an unsigned number for comparison
   unsigned int noVal = 0;
+  //! Travel time, represented as an unsigned number for comparison
   unsigned int onRoadVal = 0;
-  unsigned int typeVal = 0;
 };
 
 void parseFile(std::vector<Train> &schedules, char *fileName);
