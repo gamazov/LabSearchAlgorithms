@@ -70,21 +70,38 @@ int main(int argc, char *argv[]) {
   startTime = clock();
   std::vector<int> res = linearSearch(schedules, find);
   endTime = clock();
+  printFileSchedules(schedules, res);
 #endif // LINEAR
 #ifdef BINARYSORTED
   mergeSort(schedules, 0, static_cast<int>(schedules.size()) - 1);
   startTime = clock();
   std::vector<int> res = binarySearch(schedules, 0, static_cast<int>(schedules.size()), find);
   endTime = clock();
+  printFileSchedules(schedules, res);
 #endif // BINARYSORTED
 #ifdef BINARYANDSORT
   startTime = clock();
   mergeSort(schedules, 0, static_cast<int>(schedules.size()) - 1);
   std::vector<int> res = binarySearch(schedules, 0, static_cast<int>(schedules.size()), find);
   endTime = clock();
-#endif // BINARYANDSORT
-
   printFileSchedules(schedules, res);
+#endif // BINARYANDSORT
+#ifdef MULTIMAP
+  std::multimap<std::string, int> mmap;
+    for (int i = 0; i < static_cast<int>(schedules.size()); i++) {
+        mmap.insert(std::pair<std::string, int>{schedules[i].type, i});
+    }
+    
+    startTime = clock();
+    auto range = mmap.equal_range(find);
+    endTime = clock();
+    
+    std::ofstream fout("output.txt");
+    for (auto i = range.first; i != range.second; i++) {
+        fout << schedules[i->second].no << " " << schedules[i->second].data << " " << schedules[i->second].type << " " << schedules[i->second].time << " " << schedules[i->second].onRoad << std::endl;
+    }
+    fout.close();
+#endif // MULTIMAP
   unsigned int searchTime = 1000000.0 * (endTime - startTime) / CLOCKS_PER_SEC;
   std::cout << "Execution time for " << schedules.size() << ": " << searchTime << std::endl;
 
